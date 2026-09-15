@@ -474,11 +474,13 @@ Scrambled Sobol in 4 dimensions (d, κ_E, Γ, a), M = 4096 (power of two), equal
 
 ### 9.2 Period equilibrium
 
-Within a period, compute supply is the **vintage merit order**: vintages sorted by operating (energy) cost. If demand is below capacity, r equals the operating cost of the marginal vintage; if demand exceeds capacity, r rises above the highest operating cost and the premium is a scarcity rent (to λ_P if power binds, otherwise to compute owners).
+Within a period, compute supply is the **vintage merit order**: vintages sorted by operating (energy) cost. The marginal vintage is the dearest one dispatched at price r. If r equals its operating cost the regime is **slack**; if r exceeds it the regime is **scarce**, every dispatched vintage runs at capacity, dearer vintages may sit idle, and the premium r − op_marginal is a scarcity rent (to λ_P if power binds, otherwise to compute owners).
 
-Nested root-finding with Brent's method (`scipy.optimize.brentq`):
-- outer in w: P_Y(w) = 1 (monotone increasing in w);
-- inner in r: K_d(w, r) = C_inf (monotone decreasing in r).
+Nested root-finding:
+- outer in r: bisection in log r for the smallest r with K_d(r) ≤ S(r). Both curves are step functions (task flips, vintages switching on), so bisection is used instead of Brent;
+- inner in w: `brentq` in log w on log(P_T / MPT) = 0, which is increasing in w.
+
+`Infeasible` from the inner solve is treated as unbounded compute demand, so a full run never raises it.
 
 The chunking optimum is computed by vectorized enumeration over n ∈ {1..J} (an M×J array).
 
