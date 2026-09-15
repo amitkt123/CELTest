@@ -1,108 +1,118 @@
 """
 CEL model parameters.
 
-One frozen dataclass holds every parameter with its S0 baseline value.
-Scenarios are expressed as `dataclasses.replace(S0, **overrides)` so a
-scenario is literally a diff against baseline and nothing can drift.
+Field names, types and units live here. Values live in
+calibration/parameters.csv, which also records range, prior, class,
+source and grade for every parameter (spec §10.6). S0 is loaded from that
+file, so every number in the model traces to a row with a source.
 
-Units are stated per field. Money is constant 2024 USD. Compute is in
-effective FLOP (stock quantities in FLOP/s). Power in kW. Time in years.
+Scenarios are expressed as `S0.with_(**overrides)` so a scenario is
+literally a diff against baseline and nothing can drift.
+
+Units: money is constant 2024 USD; compute in FLOP (stocks in FLOP/s);
+power in kW; time in years. One unit of task output is one worker-year
+at gamma = 1. Labor quantities are per worker: L_bar = 1 is one average
+worker, and L_workers converts per-worker quantities to global totals.
 """
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass, replace, asdict, fields
+from pathlib import Path
 from typing import Dict
+
+CSV_PATH = Path(__file__).resolve().parent.parent / "calibration" / "parameters.csv"
 
 
 @dataclass(frozen=True)
 class Params:
     # ------------------------------------------------------------------ time
-    t0_year: int = 2023
-    T: int = 37                      # periods; t0_year + T = 2060
+    t0_year: int                     # first period
+    T: int                           # periods; t0_year + T = 2060
 
     # ------------------------------------------------ Block 1: hardware capital
-    eps0: float = 1.4e15             # FLOP/s per kW at t0 (H100-class, all-in)
-    eps_headroom: float = 30.0       # eps_max / eps0  [10, 300]  (bold)
-    g_eps: float = 0.28              # initial efficiency growth /yr
-    kappa0: float = 3.0e-11          # $ per (FLOP/s) installed at t0 (~$30k / 1e15)
-    g_kappa0: float = 0.30           # quality-adjusted price decline /yr
-    g_kappa_fab: float = 0.03        # residual fab learning /yr
-    m_H: float = 3.0                 # hardware vendor markup (75% gross margin)
-    delta_phys: float = 0.15         # physical retirement /yr
-    rho: float = 0.10                # cost of capital
-    util: float = 0.5                # utilization
-    unit_kW: float = 1.0             # power per accelerator unit, all-in
-    s_T: float = 0.30                # training share of compute
+    eps0: float                      # FLOP/s per kW at t0, all-in
+    eps_headroom: float              # eps_max / eps0
+    g_eps: float                     # initial efficiency growth /yr
+    kappa0: float                    # $ per (FLOP/s) installed at t0
+    g_kappa0: float                  # calibration check: ~ g_eps + g_kappa_fab
+    g_kappa_fab: float               # residual fab learning /yr
+    m_H: float                       # hardware vendor markup, price / cost
+    delta_phys: float                # physical retirement /yr
+    rho: float                       # private cost of capital
+    util: float                      # utilization
+    unit_kW: float                   # power per accelerator unit, all-in
+    s_T: float                       # training share of compute
 
     # ------------------------------------------------ Block 2: power / energy
-    P_bar0_GW: float = 15.0          # AI-attributable power at t0 (2023); ~50 GW by 2026
-    g_P0: float = 0.45               # near-term buildout rate (decays)
-    g_P_inf: float = 0.04            # long-run grid growth
-    tau_P: float = 6.0               # decay time of buildout rate (yr)
-    PUE: float = 1.2
-    p_E: float = 0.07                # $/kWh
-    pi_E: float = 0.01               # drift in electricity price /yr
-    eta_E: float = 0.03              # extra drift when power constraint binds
-    iota0: float = 0.38e-3           # tCO2 per kWh
-    g_iota: float = 0.03             # grid decarbonization /yr
-    SCC: float = 190.0               # $/tCO2
+    P_bar0_GW: float                 # AI-attributable power at t0
+    g_P0: float                      # near-term buildout rate (decays)
+    g_P_inf: float                   # long-run grid growth
+    tau_P: float                     # decay time of buildout rate (yr)
+    PUE: float
+    p_E: float                       # $/kWh
+    pi_E: float                      # drift in electricity price /yr
+    eta_E: float                     # extra drift when power constraint binds
+    iota0: float                     # tCO2 per kWh
+    g_iota: float                    # grid decarbonization /yr
+    SCC: float                       # $/tCO2
 
     # ------------------------------------------------ Block 3: capability
-    Theta: float = 0.25              # training campaign length (yr)
-    g_Omega0: float = 0.60           # algorithmic progress /yr           (bold)
-    tau_Omega: float = 8.0           # its decay time (yr)                (bold)
-    g_Omega_inf: float = 0.80        # inference-side efficiency /yr
-    x_t0: float = 26.0               # log10 effective training compute at t0
-    x50: float = 29.0                # log10 compute for 50% coverage     (bold)
-    s_diff: float = 1.5              # difficulty spread (decades/logit)  (bold)
-    phi_max: float = 0.75            # automatable ceiling                (bold)
-    e0: float = 1.0e15               # inference FLOP per task at MEDIAN difficulty (d = x50)
-    theta: float = 1.0               # inference-cost elasticity to difficulty (per decade)
+    Theta: float                     # training campaign length (yr)
+    g_Omega0: float                  # algorithmic progress /yr, initial
+    tau_Omega: float                 # decay time of algorithmic progress (yr)
+    g_Omega_inf: float               # inference-side efficiency /yr, initial
+    x_t0: float                      # calibration target: log10 frontier compute at t0
+    x50: float                       # log10 compute for 50% coverage
+    s_diff: float                    # difficulty spread (decades per logit)
+    phi_max: float                   # automatable ceiling
+    e0: float                        # inference FLOP per worker-year at median difficulty
+    theta: float                     # inference-cost elasticity to difficulty (per decade)
 
     # ------------------------------------------------ composition / oversight
-    psi: float = 0.5                 # Clayton dependence across steps
-    lam: float = 0.10                # graded propagation coefficient
-    rho_conceal: float = 0.15        # self-concealing error share
-    q_bar: float = 0.90              # detection prob. of non-concealed errors
-    omega0: float = 0.30             # initial oversight labor fraction (hook only)
+    psi: float                       # Clayton dependence across steps
+    lam: float                       # graded propagation coefficient
+    rho_conceal: float               # self-concealing error share
+    q_bar: float                     # detection prob. of non-concealed errors
+    omega0: float                    # calibration target: oversight labor share at t0
 
     # ------------------------------------------------ Block 4: production / labor
-    sigma: float = 0.60              # task elasticity of substitution   (bold; threshold 1)
-    nu: float = 0.005                # new-task creation /yr              (bold)
-    A_Y: float = 1.0                 # TFP scale
-    N0: float = 1.0                  # initial task measure
-    L_bar: float = 1.0               # workforce (normalized; 3.5e9 real)
-    eps_L: float = 0.30              # labor supply elasticity
-    w_res_ratio: float = 0.50        # reservation / initial wage (statutory floor)
+    sigma: float                     # task elasticity of substitution
+    nu: float                        # new-task creation /yr
+    A_Y: float                       # TFP scale, $ per worker-year at K_o = 1
+    N0: float                        # initial task measure
+    L_bar: float                     # labor per worker (normalized to 1)
+    eps_L: float                     # labor supply elasticity
+    w_res_ratio: float               # reservation / initial wage (statutory floor)
 
     # ------------------------------------------------ Block 5: industry
-    N_F: int = 5                     # effective competitors
-    F0_trillion: float = 0.6         # financing cap at 2026, $T/yr
+    N_F: int                         # effective competitors
+    F0_trillion: float               # financing cap at 2026, $T/yr
 
     # ------------------------------------------------ displacement / queue
-    A_max: int = 20                  # queue-age cohorts tracked (yr)
-    mu0: float = 0.02                # initial retraining capacity, share of L_bar / yr
-    tau_c: int = 4                   # capacity build lag (yr)
-    chi: float = 2.0                 # capacity adjustment cost curvature
-    xi_reemp: float = 0.35           # re-employment hazard decay with queue age
-    pi_scar0: float = 0.03           # base permanent-exit hazard /yr
-    pi_scar_slope: float = 0.02      # increase in exit hazard per year queued
-    turnover_ceiling: float = 0.025  # cohort-replacement absorption cap, share/yr
-    c2_burst: float = 1.0            # Kingman burstiness (c_a^2 + c_s^2)/2; cascades raise it
+    A_max: int                       # queue-age cohorts tracked (yr)
+    mu0: float                       # initial retraining capacity, share of L_bar / yr
+    tau_c: int                       # capacity build lag (yr)
+    chi: float                       # capacity adjustment cost curvature
+    xi_reemp: float                  # re-employment hazard decay with queue age
+    pi_scar0: float                  # base permanent-exit hazard /yr
+    pi_scar_slope: float             # increase in exit hazard per year queued
+    turnover_ceiling: float          # cohort-replacement absorption cap, share/yr
+    c2_burst: float                  # Kingman burstiness (c_a^2 + c_s^2)/2
 
     # ------------------------------------------------ Block 6: welfare
-    beta: float = 0.97
-    eta_ia: float = 1.5
-    g0: float = 0.025                # no-AI growth
-    Y0_trillion: float = 105.0
+    beta: float
+    eta_ia: float
+    g0: float                        # no-AI growth
+    Y0_trillion: float
 
     # ------------------------------------------------ task grid
-    M_tasks: int = 4096              # power of two for Sobol
-    sobol_seed: int = 7
-    kappaE_mu: float = 0.0           # log error-consequence, relative to task value
-    kappaE_sig: float = 1.0
-    Gamma_mu: float = 0.0            # log modularity cost
-    Gamma_sig: float = 0.8
+    M_tasks: int                     # power of two for Sobol
+    sobol_seed: int
+    kappaE_mu: float                 # log error-consequence, relative to task value
+    kappaE_sig: float
+    Gamma_mu: float                  # log modularity cost
+    Gamma_sig: float
 
     # ----------------------------------------------------------- helpers
     def with_(self, **kw) -> "Params":
@@ -115,9 +125,25 @@ class Params:
         return asdict(self)
 
 
-S0 = Params()
+def load_params(path: Path = CSV_PATH) -> Params:
+    """Build Params from the provenance CSV. Field set and CSV rows must match exactly."""
+    with path.open(newline="", encoding="utf-8") as fh:
+        rows = {row["name"]: row for row in csv.DictReader(fh)}
+    names = {f.name for f in fields(Params)}
+    missing = sorted(names - set(rows))
+    extra = sorted(set(rows) - names)
+    if missing or extra:
+        raise KeyError(f"parameters.csv out of sync: missing={missing} extra={extra}")
+    kw = {}
+    for f in fields(Params):
+        raw = rows[f.name]["value"]
+        kw[f.name] = int(raw) if f.type == "int" else float(raw)
+    return Params(**kw)
 
-# Scenario diffs (spec §11). Each is a dict so the diff is auditable.
+
+S0 = load_params()
+
+# Scenario diffs (spec §11.2). Each is a dict so the diff is auditable.
 SCENARIOS: Dict[str, Dict] = {
     "S0_baseline": {},
     "S1_motivating": dict(phi_max=0.98, nu=0.0, sigma=1.2, eps_headroom=10.0, tau_Omega=4.0),

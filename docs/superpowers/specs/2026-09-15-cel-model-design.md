@@ -512,6 +512,7 @@ Fixed seeds; every output carries a hash of its `Params`. Target < 2 s per run a
 | B. Literature | σ, g_Ω0, g_eps, g_fab, ε_L, ξ_reemp, π_scar, s_w, μ0, δ_phys, ι_emb | Prior range from published estimates |
 | C. Structural unknowns | φ_max, x50, s_diff, θ, ν, H, τ_Ω, g_Ωinf, τ_D, ζ, X_H | Wide priors; verdicts are decided here |
 | D. Identities | A_Y, ς, `omega0` target, `g_kappa0` check | Solved, not chosen |
+| N. Numerical settings | t0_year, T, M_tasks, sobol_seed, A_max, N0 | Fixed design choices, not calibrated |
 
 ### 10.2 Known discrepancies to resolve first
 

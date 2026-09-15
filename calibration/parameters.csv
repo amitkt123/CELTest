@@ -1,0 +1,69 @@
+name,value,lower,upper,prior,class,source,grade,notes
+t0_year,2023,,,fixed,N,Model start year (design),-,
+T,37,,,fixed,N,Horizon to 2060 (design),-,
+eps0,0.75e15,0.5e15,1.4e15,loguniform,A,H100-class dense BF16 ~1e15 FLOP/s per GPU at ~1.3 kW all-in (NVIDIA datasheet; server specs),B,Provisional; verify all-in power (spec §10.2)
+eps_headroom,30.0,10.0,300.0,loguniform,C,Physical efficiency ceiling relative to eps0 (assumption),C,Structural unknown
+g_eps,0.28,0.20,0.40,uniform,B,Epoch AI ML hardware price-performance (doubling ~2.5 yr),B,
+kappa0,4.0e-11,2.5e-11,6.0e-11,loguniform,A,~$30k per H100-class unit all-in (industry pricing reports),C,Provisional; kappa0*eps0*unit_kW = $30k
+g_kappa0,0.30,0.20,0.40,uniform,D,Calibration check: must come out near g_eps + g_kappa_fab (spec §2.1),-,Not a free parameter
+g_kappa_fab,0.03,0.0,0.06,uniform,B,Residual semiconductor fab learning (assumption),C,
+m_H,4.0,2.0,5.0,uniform,A,NVIDIA data-center gross margin ~75% (10-K FY2025),A,m_H = 1/(1 - gross margin)
+delta_phys,0.15,0.08,0.25,uniform,B,Accelerator physical retirement rate (assumption),C,
+rho,0.10,0.06,0.14,uniform,B,Cost of capital for AI infrastructure (assumption),C,
+util,0.5,0.3,0.8,uniform,B,Fleet average accelerator utilization (assumption),C,
+unit_kW,1.0,,,fixed,D,Unit definition: one accelerator unit = 1 kW all-in (spec §2.5),-,
+s_T,0.30,0.15,0.50,uniform,B,Training share of AI compute (assumption),C,
+P_bar0_GW,15.0,5.0,20.0,uniform,A,AI-attributable power 2023 (check vs IEA Energy and AI 2025),C,Provisional; likely high (spec §4.2)
+g_P0,0.45,0.25,0.60,uniform,C,Near-term AI power buildout rate (assumption),C,
+g_P_inf,0.04,0.02,0.08,uniform,C,Long-run grid growth available to AI (assumption),C,
+tau_P,6.0,3.0,12.0,uniform,C,Decay time of buildout rate (assumption),C,
+PUE,1.2,1.1,1.5,uniform,A,Hyperscale PUE ~1.1-1.2 (LBNL 2024),B,
+p_E,0.07,0.04,0.12,uniform,A,US industrial electricity price (EIA),A,
+pi_E,0.01,0.0,0.03,uniform,B,Real drift in electricity price (assumption),C,
+eta_E,0.03,0.0,0.08,uniform,C,Extra price drift when power binds (assumption),C,
+iota0,0.38e-3,0.2e-3,0.5e-3,uniform,A,US grid average tCO2 per kWh (EPA eGRID),A,
+g_iota,0.03,0.01,0.06,uniform,B,Grid decarbonization rate (assumption),C,
+SCC,190.0,50.0,300.0,uniform,A,EPA 2023 social cost of carbon at 2% discount,A,
+Theta,0.25,0.1,0.5,uniform,B,Frontier training run length ~3 months (Epoch AI),B,
+g_Omega0,0.60,0.40,1.20,uniform,B,Algorithmic progress; Ho et al. 2024 suggest ~1.0/yr,B,S0 conservative (spec §10.2)
+tau_Omega,8.0,4.0,20.0,uniform,C,Decay time of algorithmic progress (assumption),C,Structural unknown
+g_Omega_inf,0.80,0.40,3.00,uniform,C,Inference efficiency; Epoch reports 9-900x/yr price declines at fixed capability,B,Structural unknown
+x_t0,26.0,25.5,26.5,uniform,D,Calibration target: 2023 frontier run ~1e26 effective FLOP (Epoch AI),B,Pins varsigma (spec §4.2)
+x50,29.0,27.0,33.0,uniform,C,log10 compute for 50% task coverage; calibrate to METR time horizons,C,Structural unknown
+s_diff,1.5,0.5,3.0,uniform,C,Difficulty spread in decades per logit; calibrate to METR time horizons,C,Structural unknown
+phi_max,0.75,0.40,0.98,uniform,C,Automatable ceiling (assumption),C,Structural unknown; 1 - phi_max floors ell
+e0,1.0e20,1.0e19,1.0e21,loguniform,C,Inference FLOP per worker-year at median difficulty: ~1e8 tokens x ~1e12 FLOP/token (spec §4.4),C,Structural unknown
+theta,1.0,0.3,1.5,uniform,C,Inference-cost elasticity to difficulty per decade (assumption),C,Drives Proposition 2b
+psi,0.5,0.0,3.0,uniform,C,Clayton dependence of step errors (assumption),C,Used from build step 6
+lam,0.10,0.0,1.0,uniform,C,Error propagation per downstream chunk (assumption),C,Used from build step 6
+rho_conceal,0.15,0.0,0.4,uniform,C,Self-concealing error share (assumption),C,Used from build step 6
+q_bar,0.90,0.6,0.99,uniform,C,Detection probability of non-concealed errors (assumption),C,Used from build step 6
+omega0,0.30,0.1,0.5,uniform,D,Calibration target: oversight labor share at t0 (assumption),C,Target not input
+sigma,0.60,0.30,1.50,uniform,B,Task elasticity of substitution (Acemoglu-Restrepo 2018; Oberfield-Raval 2021),B,Threshold at 1
+nu,0.005,0.0,0.02,uniform,C,New-task creation rate (Autor et al. 2024),B,
+A_Y,1.0,,,fixed,D,TFP scale (normalization until the Task 5 calibration identity),-,
+N0,1.0,,,fixed,N,Initial task measure (normalization),-,
+L_bar,1.0,,,fixed,D,Labor per worker (normalization: one average worker),-,
+eps_L,0.30,0.1,0.6,uniform,B,Labor supply elasticity (Chetty et al. 2011),A,
+w_res_ratio,0.50,0.3,0.8,uniform,C,Wage floor relative to initial wage (assumption),C,
+N_F,5,2,10,uniform,A,Number of frontier model developers (industry count),B,
+F0_trillion,0.6,0.3,1.0,uniform,C,Financing cap at 2026 in $T/yr (hyperscaler capex guidance),C,Press-grade
+A_max,20,,,fixed,N,Queue-age cohorts tracked (design),-,
+mu0,0.02,0.005,0.05,uniform,C,Initial retraining capacity share of labor per yr (assumption),C,
+tau_c,4,1,8,uniform,C,Capacity build lag in years (assumption),C,
+chi,2.0,1.0,5.0,uniform,C,Capacity adjustment curvature (assumption),C,
+xi_reemp,0.35,0.1,0.6,uniform,B,Negative duration dependence (Kroft-Lange-Notowidigdo 2013),A,
+pi_scar0,0.03,0.0,0.08,uniform,C,Base permanent-exit hazard (assumption),C,
+pi_scar_slope,0.02,0.0,0.05,uniform,C,Exit hazard increase per year queued (assumption),C,
+turnover_ceiling,0.025,0.015,0.04,uniform,B,Displacement absorbed by retirements and entry per yr (assumption),C,
+c2_burst,1.0,0.5,4.0,uniform,C,Kingman burstiness (assumption),C,
+beta,0.97,0.95,0.99,uniform,B,Social discount factor,B,
+eta_ia,1.5,0.5,3.0,uniform,B,Inequality aversion,B,
+g0,0.025,0.015,0.035,uniform,B,No-AI world growth (IMF WEO long-run),B,
+Y0_trillion,105.0,100.0,110.0,uniform,A,World GDP 2023 in $T (World Bank WDI),A,
+M_tasks,4096,,,fixed,N,Sobol task grid size (power of two),-,
+sobol_seed,7,,,fixed,N,Sobol scramble seed,-,
+kappaE_mu,0.0,-1.0,1.0,uniform,C,Log error consequence relative to task value (assumption),C,Used from build step 6
+kappaE_sig,1.0,0.5,2.0,uniform,C,Dispersion of error consequence (assumption),C,Used from build step 6
+Gamma_mu,0.0,-1.0,1.0,uniform,C,Log modularity cost (assumption),C,Used from build step 6
+Gamma_sig,0.8,0.3,1.5,uniform,C,Dispersion of modularity cost (assumption),C,Used from build step 6
