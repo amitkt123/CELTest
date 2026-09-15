@@ -79,9 +79,11 @@ class Params:
     # ------------------------------------------------ Block 4: production / labor
     sigma: float                     # task elasticity of substitution
     nu: float                        # new-task creation /yr
+    alpha_K: float                   # conventional capital share (outer Cobb-Douglas)
     A_Y: float                       # TFP scale, $ per worker-year at K_o = 1
     N0: float                        # initial task measure
     L_bar: float                     # labor per worker (normalized to 1)
+    L_workers: float                 # global labor force (workers)
     eps_L: float                     # labor supply elasticity
     w_res_ratio: float               # reservation / initial wage (statutory floor)
 

@@ -41,9 +41,11 @@ q_bar,0.90,0.6,0.99,uniform,C,Detection probability of non-concealed errors (ass
 omega0,0.30,0.1,0.5,uniform,D,Calibration target: oversight labor share at t0 (assumption),C,Target not input
 sigma,0.60,0.30,1.50,uniform,B,Task elasticity of substitution (Acemoglu-Restrepo 2018; Oberfield-Raval 2021),B,Threshold at 1
 nu,0.005,0.0,0.02,uniform,C,New-task creation rate (Autor et al. 2024),B,
-A_Y,1.0,,,fixed,D,TFP scale (normalization until the Task 5 calibration identity),-,
+alpha_K,0.45,0.35,0.50,uniform,A,1 - global labor share ~0.55 (Penn World Table 10),B,Sets s_L0 = 1 - alpha_K
+A_Y,30000.0,,,fixed,D,Identity: Y0_trillion * 1e12 / L_workers at K_o = 1 (spec §5.1),-,
 N0,1.0,,,fixed,N,Initial task measure (normalization),-,
 L_bar,1.0,,,fixed,D,Labor per worker (normalization: one average worker),-,
+L_workers,3.5e9,3.3e9,3.7e9,uniform,A,Global labour force (ILO),A,
 eps_L,0.30,0.1,0.6,uniform,B,Labor supply elasticity (Chetty et al. 2011),A,
 w_res_ratio,0.50,0.3,0.8,uniform,C,Wage floor relative to initial wage (assumption),C,
 N_F,5,2,10,uniform,A,Number of frontier model developers (industry count),B,

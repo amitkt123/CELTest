@@ -242,7 +242,7 @@ Y   = A_Y(t) · K_o(t)^{α_K} · T^{1−α_K}
 T   = [ Σ_i w_i · y_i^{(σ−1)/σ} ]^{σ/(σ−1)}      over task measure N(t)
 ```
 
-Task price index P_T = [Σ_i w_i p_i^{1−σ}]^{1/(1−σ)}; numeraire P_Y = 1. K_o and A_Y grow at the no-AI rate g0. A_Y is calibrated so that Y(t0) = $105T and s_L(t0) = 0.55, implying a global average wage of ≈$16k per worker-year. The same model with φ ≡ 0 and I ≡ 0 is the **no-AI counterfactual** used in §8.
+Task price index P_T = [Σ_i w_i p_i^{1−σ}]^{1/(1−σ)}; numeraire P_Y = 1. K_o and A_Y grow at the no-AI rate g0. Output is per worker: with K_o(t0) = 1, A_Y = Y0/L_workers = $30,000 per worker-year. Because the outer nest is Cobb–Douglas, the no-AI labor share is 1 − α_K, so s_L(t0) = 0.55 pins α_K = 0.45 and the average wage at ≈$16,500 per worker-year. The same model with φ ≡ 0 and I ≡ 0 is the **no-AI counterfactual** used in §8.
 
 ### 5.2 Automation rule
 
@@ -627,7 +627,7 @@ Tests follow the existing style: pytest, closed-form limiting cases, `test_<step
 
 | Name | Meaning | S0 | Range | Class |
 |---|---|---|---|---|
-| alpha_K | Conventional capital share | 0.40 | [0.30, 0.45] | A |
+| alpha_K | Conventional capital share (= 1 − s_L0) | 0.45 | [0.35, 0.50] | A |
 | varsigma | Frontier-run share of training compute | derived | — | D |
 | J_steps | Steps per task | 20 | [5, 50] | C |
 | eps_H | Human per-step error rate | 0.01 | [0.002, 0.05] | B |
@@ -647,6 +647,7 @@ Tests follow the existing style: pytest, closed-form limiting cases, `test_<step
 | n_K | Owner population share | 0.10 | [0.05, 0.20] | A |
 | g_T | Terminal growth for TV | = g0 | [0.0, 0.03] | C |
 | h0_reemp | Base re-employment hazard (/yr); W = c2/(h0(1 − u)) | 1.0 | [0.5, 3.0] | C |
+| L_workers | Global labor force (workers); converts per-worker quantities to totals | 3.5e9 | [3.3e9, 3.7e9] | A |
 
 ---
 
