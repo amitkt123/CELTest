@@ -53,6 +53,7 @@ mu0,0.02,0.005,0.05,uniform,C,Initial retraining capacity share of labor per yr 
 tau_c,4,1,8,uniform,C,Capacity build lag in years (assumption),C,
 chi,2.0,1.0,5.0,uniform,C,Capacity adjustment curvature (assumption),C,
 xi_reemp,0.35,0.1,0.6,uniform,B,Negative duration dependence (Kroft-Lange-Notowidigdo 2013),A,
+h0_reemp,1.0,0.5,3.0,uniform,C,Base re-employment hazard per yr; normalization giving W = c2/(1-u) (spec §7.3),C,
 pi_scar0,0.03,0.0,0.08,uniform,C,Base permanent-exit hazard (assumption),C,
 pi_scar_slope,0.02,0.0,0.05,uniform,C,Exit hazard increase per year queued (assumption),C,
 turnover_ceiling,0.025,0.015,0.04,uniform,B,Displacement absorbed by retirements and entry per yr (assumption),C,

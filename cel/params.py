@@ -95,6 +95,7 @@ class Params:
     tau_c: int                       # capacity build lag (yr)
     chi: float                       # capacity adjustment cost curvature
     xi_reemp: float                  # re-employment hazard decay with queue age
+    h0_reemp: float                  # base re-employment hazard /yr
     pi_scar0: float                  # base permanent-exit hazard /yr
     pi_scar_slope: float             # increase in exit hazard per year queued
     turnover_ceiling: float          # cohort-replacement absorption cap, share/yr

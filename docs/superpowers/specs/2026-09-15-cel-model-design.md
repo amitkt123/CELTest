@@ -387,10 +387,10 @@ Capacity cost c_μ per slot-year is fiscal. Outflow is also bounded by openings 
 ### 7.3 Congestion: clearing function (replaces the current inflow-ratio factor)
 
 ```
-X(S) = μ_eff · S / (S + c2·μ_eff/h0)
+X = μ_eff · S_eff / (S_eff + c2·μ_eff/h0),     S_eff = Σ_a S_a·e^{−ξ·a}
 ```
 
-Outflow X(S) is allocated across ages in proportion to S_a·e^{−ξ·a} (negative duration dependence). Steady state with u = λ/μ_eff < 1 gives W = c2/(h0·(1 − u)); for c2 = 1 this equals Kingman's 1 + u/(1 − u) exactly, and for any c2 both share the heavy-traffic limit c2/(1 − u). For u ≥ 1 no steady state exists and the stock grows at rate λ − μ_eff. W is continuous and monotone in u. This fixes the defect in Appendix B (duration 2000 yr at u = 0.9995 but 1 yr at u = 1).
+Outflow X is allocated across ages in proportion to S_a·e^{−ξ·a} (negative duration dependence). Because X depends on the employable stock S_eff rather than the raw stock, an aging pool clears more slowly; with ξ = 0, S_eff = S and the steady-state formula below holds exactly. Steady state with u = λ/μ_eff < 1 gives W = c2/(h0·(1 − u)); for c2 = 1 this equals Kingman's 1 + u/(1 − u) exactly, and for any c2 both share the heavy-traffic limit c2/(1 − u). For u ≥ 1 no steady state exists and the stock grows at rate λ − μ_eff. W is continuous and monotone in u. This fixes the defect in Appendix B (duration 2000 yr at u = 0.9995 but 1 yr at u = 1).
 
 ### 7.4 Scarring
 
@@ -646,6 +646,7 @@ Tests follow the existing style: pytest, closed-form limiting cases, `test_<step
 | b_rep | Benefit replacement ratio | 0.40 | [0.2, 0.7] | A |
 | n_K | Owner population share | 0.10 | [0.05, 0.20] | A |
 | g_T | Terminal growth for TV | = g0 | [0.0, 0.03] | C |
+| h0_reemp | Base re-employment hazard (/yr); W = c2/(h0(1 − u)) | 1.0 | [0.5, 3.0] | C |
 
 ---
 
