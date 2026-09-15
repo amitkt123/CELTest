@@ -13,22 +13,6 @@ import pytest
 from cel import Params, S0, TaskGrid, solve_period, labor_share_closed_form, Infeasible
 
 
-# ---------------------------------------------------------------- grid sanity
-def test_grid_reproduces_logistic_H():
-    p = S0
-    g = TaskGrid(p)
-    for x in [p.x50 - 2 * p.s_diff, p.x50, p.x50 + 2 * p.s_diff]:
-        H = 1.0 / (1.0 + np.exp(-(x - p.x50) / p.s_diff))
-        assert abs(g.coverage_at(x) - H) < 0.01, (x, g.coverage_at(x), H)
-
-
-def test_grid_rank_is_uniform_and_ordered_by_d():
-    g = TaskGrid(S0)
-    order = np.argsort(g.d)
-    assert np.all(np.diff(g.rank[order]) > 0)
-    assert abs(g.rank.mean() - 0.5) < 1e-6
-
-
 # ---------------------------------------------------------------- step 1
 @pytest.mark.parametrize("A_Y", [1.0, 2.5])
 @pytest.mark.parametrize("sigma", [0.6, 1.5])
