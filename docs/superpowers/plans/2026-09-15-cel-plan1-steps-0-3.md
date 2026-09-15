@@ -79,7 +79,7 @@ Each later plan is written after the previous one lands.
 - Consumes: nothing.
 - Produces: a `.venv/` with dependencies, and a git baseline commit of the existing skeleton.
 
-- [ ] **Step 1: Create `requirements.txt`**
+- [x] **Step 1: Create `requirements.txt`**
 
 **File: `requirements.txt` (full contents)**
 
@@ -89,7 +89,7 @@ scipy>=1.11
 pytest>=8
 ```
 
-- [ ] **Step 2: Ignore the virtualenv**
+- [x] **Step 2: Ignore the virtualenv**
 
 Append one line to `.gitignore`:
 
@@ -97,17 +97,17 @@ Append one line to `.gitignore`:
 .venv/
 ```
 
-- [ ] **Step 3: Create the virtualenv and install**
+- [x] **Step 3: Create the virtualenv and install**
 
 Run: `python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt`
 Expected: exits 0.
 
-- [ ] **Step 4: Run the existing tests**
+- [x] **Step 4: Run the existing tests**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `24 passed`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add requirements.txt .gitignore README.md cel tests
@@ -135,7 +135,7 @@ Spec §10.6: `params.py` reads S0 from `calibration/parameters.csv`. Spec Append
   - `cel.params.S0 = load_params()`
   - `Params` fields now have no defaults. `int` fields are `t0_year, T, N_F, A_max, tau_c, M_tasks, sobol_seed`; all others are `float`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 **File: `tests/test_params.py` (full contents)**
 
@@ -209,12 +209,12 @@ def test_unit_inconsistencies_are_fixed():
     assert S0.e0 == pytest.approx(1e20)                                # worker-year anchor
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_params.py -q`
 Expected: collection error `ImportError: cannot import name 'CSV_PATH' from 'cel.params'`
 
-- [ ] **Step 3: Create the CSV**
+- [x] **Step 3: Create the CSV**
 
 Class codes (spec §10.1, plus N):
 - **A** measured
@@ -301,7 +301,7 @@ Gamma_mu,0.0,-1.0,1.0,uniform,C,Log modularity cost (assumption),C,Used from bui
 Gamma_sig,0.8,0.3,1.5,uniform,C,Dispersion of modularity cost (assumption),C,Used from build step 6
 ```
 
-- [ ] **Step 4: Rewrite `cel/params.py`**
+- [x] **Step 4: Rewrite `cel/params.py`**
 
 **File: `cel/params.py` (Task 2 contents)**
 
@@ -467,14 +467,14 @@ def scenario(name: str) -> Params:
 
 `f.type` is the string `"int"` or `"float"` because of `from __future__ import annotations`. That is why `load_params` compares against a string.
 
-- [ ] **Step 5: Export `load_params`**
+- [x] **Step 5: Export `load_params`**
 
 In `cel/__init__.py`, replace
 `from .params import Params, S0, SCENARIOS, scenario`
 with
 `from .params import Params, S0, SCENARIOS, scenario, load_params`
 
-- [ ] **Step 6: Record class N in the spec**
+- [x] **Step 6: Record class N in the spec**
 
 In `docs/superpowers/specs/2026-09-15-cel-model-design.md` §10.1, replace the row
 
@@ -489,12 +489,12 @@ with
 | N. Numerical settings | t0_year, T, M_tasks, sobol_seed, A_max, N0 | Fixed design choices, not calibrated |
 ```
 
-- [ ] **Step 7: Run tests to verify they pass**
+- [x] **Step 7: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `31 passed`
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add calibration/parameters.csv cel/params.py cel/__init__.py tests/test_params.py docs/superpowers/specs/2026-09-15-cel-model-design.md
@@ -529,7 +529,7 @@ Near saturation the queue converges slowly (rate 1 − dX/dS), so Kingman checks
 - Consumes: `S0.with_`, `Params.h0_reemp: float`.
 - Produces: `DisplacedPool(p).step(inflow: float, capacity: float, match_cap: float | None = None) -> QueueStep`. The signature is unchanged. `QueueStep` fields are unchanged: `outflow, exits, stock, mean_duration, saturation`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 **File: `tests/test_queue.py` (full contents)**
 
@@ -599,17 +599,17 @@ def test_queue_outflow_never_exceeds_stock_or_capacity():
         assert st.outflow <= before + 1e-15
 ```
 
-- [ ] **Step 2: Remove the old queue tests from `tests/test_steps_1_2.py`**
+- [x] **Step 2: Remove the old queue tests from `tests/test_steps_1_2.py`**
 
 - Delete everything from the line `# ---------------------------------------------------------------- cohort queue` to the end of the file. That removes `_pure_queue`, `test_queue_kingman_exact_without_duration_dependence`, `test_queue_saturated_grows_without_bound` and `test_queue_duration_dependence_amplifies_congestion`.
 - In the import line, replace `, Infeasible, DisplacedPool` with `, Infeasible`.
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_queue.py -q`
 Expected: FAIL with `KeyError: "unknown parameter(s): ['h0_reemp']"`
 
-- [ ] **Step 4: Add the `h0_reemp` parameter**
+- [x] **Step 4: Add the `h0_reemp` parameter**
 
 In `calibration/parameters.csv`, insert this row directly after the `xi_reemp,...` row:
 
@@ -623,7 +623,7 @@ In `cel/params.py`, insert this line directly after the `xi_reemp: float ...` li
     h0_reemp: float                  # base re-employment hazard /yr
 ```
 
-- [ ] **Step 5: Rewrite `cel/cohorts.py`**
+- [x] **Step 5: Rewrite `cel/cohorts.py`**
 
 **File: `cel/cohorts.py` (full contents)**
 
@@ -709,7 +709,7 @@ class DisplacedPool:
         )
 ```
 
-- [ ] **Step 6: Amend the spec**
+- [x] **Step 6: Amend the spec**
 
 In §7.3, replace the formula line
 
@@ -741,12 +741,12 @@ In Appendix A.2, insert this row directly after the `g_T` row:
 | h0_reemp | Base re-employment hazard (/yr); W = c2/(h0(1 − u)) | 1.0 | [0.5, 3.0] | C |
 ```
 
-- [ ] **Step 7: Run tests to verify they pass**
+- [x] **Step 7: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `34 passed`
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add calibration/parameters.csv cel/params.py cel/cohorts.py tests/test_queue.py tests/test_steps_1_2.py docs/superpowers/specs/2026-09-15-cel-model-design.md
@@ -771,7 +771,7 @@ Spec §4.3 and Appendix B item 6. A fourth Sobol dimension gives each task a fla
   - `TaskGrid.capable_at(x: float) -> np.ndarray[bool]`
   - `TaskGrid.rank`, `coverage_at` and `inference_flop` are unchanged.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 **File: `tests/test_grid.py` (full contents)**
 
@@ -823,16 +823,16 @@ def test_phi_max_is_a_hard_ceiling_on_capability():
     assert g.capable_at(1e9).mean() == pytest.approx(g.a.mean())
 ```
 
-- [ ] **Step 2: Remove the old grid tests from `tests/test_steps_1_2.py`**
+- [x] **Step 2: Remove the old grid tests from `tests/test_steps_1_2.py`**
 
 Delete the block from the line `# ---------------------------------------------------------------- grid sanity` up to, but not including, the line `# ---------------------------------------------------------------- step 1`. That removes `test_grid_reproduces_logistic_H` and `test_grid_rank_is_uniform_and_ordered_by_d`.
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_grid.py -q`
 Expected: FAIL with `AttributeError: 'TaskGrid' object has no attribute 'a'`
 
-- [ ] **Step 4: Rewrite `cel/grid.py`**
+- [x] **Step 4: Rewrite `cel/grid.py`**
 
 **File: `cel/grid.py` (full contents)**
 
@@ -908,12 +908,12 @@ class TaskGrid:
         return p.e0 / Omega_inf * 10.0 ** (p.theta * (self.d - p.x50))
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `40 passed`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add cel/grid.py tests/test_grid.py tests/test_steps_1_2.py
@@ -952,7 +952,7 @@ Spec §5.1–5.3 (build steps 1–2 redone), plus Appendix B items 4 and 6.
   - `labor_share_closed_form(p, phi, w, p_A, N=1.0) -> float`, now including the factor (1 − α_K)
   - `Infeasible(RuntimeError)`, raised only when α_K = 0
 
-- [ ] **Step 1: Write the failing test, replacing the old step 1–2 file**
+- [x] **Step 1: Write the failing test, replacing the old step 1–2 file**
 
 Run: `git rm -q tests/test_steps_1_2.py`
 
@@ -1081,12 +1081,12 @@ def test_step2_deployment_wedge_when_not_forced():
     assert np.all(res.prices[res.auto] < res.w / g.gamma[res.auto])
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_economy.py -q`
 Expected: FAIL with `KeyError: "unknown parameter(s): ['alpha_K']"` (or `TypeError` on `capable=`)
 
-- [ ] **Step 3: Add the parameters**
+- [x] **Step 3: Add the parameters**
 
 In `calibration/parameters.csv`:
 - Insert after the `nu,...` row:
@@ -1112,7 +1112,7 @@ In `cel/params.py`:
       L_workers: float                 # global labor force (workers)
   ```
 
-- [ ] **Step 4: Rewrite `cel/economy.py`**
+- [x] **Step 4: Rewrite `cel/economy.py`**
 
 **File: `cel/economy.py` (full contents)**
 
@@ -1260,7 +1260,7 @@ def labor_share_closed_form(p: Params, phi: float, w: float, p_A: float, N: floa
     return (1.0 - p.alpha_K) * inner
 ```
 
-- [ ] **Step 5: Amend the spec**
+- [x] **Step 5: Amend the spec**
 
 In §5.1, replace
 
@@ -1292,12 +1292,12 @@ and insert this row directly after the `h0_reemp` row:
 | L_workers | Global labor force (workers); converts per-worker quantities to totals | 3.5e9 | [3.3e9, 3.7e9] | A |
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `58 passed`
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add calibration/parameters.csv cel/params.py cel/economy.py tests/test_economy.py docs/superpowers/specs/2026-09-15-cel-model-design.md
@@ -1319,7 +1319,7 @@ Spec §4.1 and Appendix B item 5. Both multipliers grow at decaying rates that s
 - Consumes: `Params.g_Omega0`, `Params.g_Omega_inf`, `Params.tau_Omega`.
 - Produces: `omega_train(p: Params, tau: float) -> float` and `omega_inf(p: Params, tau: float) -> float`, where `tau` is years since t0. Plan 2 feeds `omega_inf` into `solve_period(..., Omega_inf=...)`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 **File: `tests/test_capability.py` (full contents)**
 
@@ -1356,12 +1356,12 @@ def test_inference_efficiency_is_bounded_by_2060():
     assert omega_inf(S0, 37.0) < 1e3
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_capability.py -q`
 Expected: collection error `ImportError: cannot import name 'omega_train' from 'cel'`
 
-- [ ] **Step 3: Create `cel/capability.py`**
+- [x] **Step 3: Create `cel/capability.py`**
 
 **File: `cel/capability.py` (full contents)**
 
@@ -1400,7 +1400,7 @@ def omega_inf(p: Params, tau: float) -> float:
     return math.exp(_log_multiplier(p.g_Omega_inf, p.tau_Omega, tau))
 ```
 
-- [ ] **Step 4: Export**
+- [x] **Step 4: Export**
 
 Append to `cel/__init__.py`:
 
@@ -1408,12 +1408,12 @@ Append to `cel/__init__.py`:
 from .capability import omega_train, omega_inf
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `62 passed`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add cel/capability.py cel/__init__.py tests/test_capability.py
@@ -1447,7 +1447,7 @@ Spec §9.2, build step 3.
   - `MarketError(RuntimeError)`, raised if no price up to 2^200 × min cost clears
   - Plan 2 builds `ComputeSupply` from vintages: capacity = C_inf·Y_s/L_workers per vintage, op_cost = energy cost per delivered FLOP.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 **File: `tests/test_compute_market.py` (full contents)**
 
@@ -1544,12 +1544,12 @@ def test_infeasible_never_escapes_market_clearing():
     assert m.period.K_d <= 1.0 * (1.0 + 1e-9)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_compute_market.py -q`
 Expected: collection error `ImportError: cannot import name 'ComputeSupply' from 'cel'`
 
-- [ ] **Step 3: Create `cel/compute_market.py`**
+- [x] **Step 3: Create `cel/compute_market.py`**
 
 **File: `cel/compute_market.py` (full contents)**
 
@@ -1677,7 +1677,7 @@ def _result(res: PeriodResult, r: float, supply: ComputeSupply) -> MarketResult:
     )
 ```
 
-- [ ] **Step 4: Rewrite `cel/__init__.py`**
+- [x] **Step 4: Rewrite `cel/__init__.py`**
 
 **File: `cel/__init__.py` (full contents)**
 
@@ -1691,12 +1691,12 @@ from .capability import omega_train, omega_inf
 from .compute_market import ComputeSupply, MarketResult, MarketError, solve_market
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `72 passed`
 
-- [ ] **Step 6: Amend spec §9.2**
+- [x] **Step 6: Amend spec §9.2**
 
 In §9.2, replace everything from the paragraph beginning `Within a period, compute supply is the **vintage merit order**` through the bullet `- inner in r: K_d(w, r) = C_inf (monotone decreasing in r).` with:
 
@@ -1712,7 +1712,7 @@ Nested root-finding:
 
 Leave the following sentence about the chunking optimum unchanged.
 
-- [ ] **Step 7: Rewrite `cel/simulate.py`**
+- [x] **Step 7: Rewrite `cel/simulate.py`**
 
 **File: `cel/simulate.py` (full contents)**
 
@@ -1743,7 +1743,7 @@ def run(p: Params):
     raise NotImplementedError("steps 4-10 not yet built; see tests/ for steps 0-3")
 ```
 
-- [ ] **Step 8: Rewrite `README.md`**
+- [x] **Step 8: Rewrite `README.md`**
 
 **File: `README.md` (full contents)**
 
@@ -1785,12 +1785,12 @@ Things the tests taught us:
     conventional capital is in the nest: automation must pass the cost test.
 ```
 
-- [ ] **Step 9: Run the full suite once more**
+- [x] **Step 9: Run the full suite once more**
 
 Run: `.venv/bin/python -m pytest tests -q`
 Expected: `72 passed`
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add cel/compute_market.py cel/__init__.py cel/simulate.py README.md tests/test_compute_market.py docs/superpowers/specs/2026-09-15-cel-model-design.md
